@@ -20,14 +20,24 @@ func main() {
 
 	scanner := bufio.NewScanner(file)
 
-	var leftList = [](string){}
-	var rightList = [](string){}
+	var leftList []float64
+	var rightList []float64
 
 	for scanner.Scan() {
 		v := strings.Split(scanner.Text(), "   ")
-		leftList = append(leftList, v[0])
-		rightList = append(rightList, v[1])
+		l, err := strconv.ParseFloat(v[0], 64)
+		if err != nil {
+			panic(err)
+		}
+		r, err := strconv.ParseFloat(v[1], 64)
+		if err != nil {
+			panic(err)
+		}
+		leftList = append(leftList, l)
+		rightList = append(rightList, r)
 	}
+
+	// Part 1
 
 	sort.Slice(leftList, func(i, j int) bool {
 		return leftList[i] < leftList[j]
@@ -36,23 +46,29 @@ func main() {
 		return rightList[i] < rightList[j]
 	})
 
-	total := 0.0
+	part1 := 0.0
 
 	for i := 0; i < len(leftList); i++ {
-		l, err := strconv.ParseFloat(leftList[i], 64)
-		if err != nil {
-			panic(err)
-		}
-		r, err := strconv.ParseFloat(rightList[i], 64)
-		if err != nil {
-			panic(err)
-		}
-		total += math.Abs(l - r)
+		part1 += math.Abs(leftList[i] - rightList[i])
 	}
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Part 1: ", int(total))
+	fmt.Println("Part 1: ", int(part1))
+
+	// Part 2
+	part2 := 0.0
+	for i := 0; i < len(leftList); i++ {
+		foundCount := 0.0
+		for j := 0; j < len(rightList); j++ {
+			if leftList[i] == rightList[j] {
+				foundCount++
+			}
+		}
+		part2 += leftList[i] * foundCount
+	}
+	fmt.Println("Part 2: ", int(part2))
+
 }
