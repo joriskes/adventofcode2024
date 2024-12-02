@@ -72,10 +72,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Write .go file (if non-existing)
+	// Read template
+	template, err := os.ReadFile("template.go")
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	// Todo: replace $DAY with current day number
+
+	// Write template to new .go file (if non-existing)
 	goFile := path + string(os.PathSeparator) + "main.go"
 	if _, err := os.Stat(goFile); errors.Is(err, os.ErrNotExist) {
-		if err := os.WriteFile(goFile, []byte("todo"), os.ModePerm); err != nil {
+		if err := os.WriteFile(goFile, []byte(template), os.ModePerm); err != nil {
 			fmt.Printf("Could create go file "+goFile, err)
 			os.Exit(1)
 		}
