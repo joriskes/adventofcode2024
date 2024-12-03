@@ -56,8 +56,7 @@ func run(day string) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	fmt.Println(string(output))
-
+	fmt.Print(string(output))
 	fmt.Println("⏱️ Day "+day+" time:", time.Since(start))
 }
 
@@ -122,7 +121,7 @@ func create(day string) {
 	// Write template to new .go file (if non-existing)
 	goFile := path + string(os.PathSeparator) + "main.go"
 	if _, err := os.Stat(goFile); errors.Is(err, os.ErrNotExist) {
-		if err := os.WriteFile(goFile, []byte(template), os.ModePerm); err != nil {
+		if err := os.WriteFile(goFile, template, os.ModePerm); err != nil {
 			fmt.Printf("Could create go file "+goFile, err)
 			os.Exit(1)
 		}
