@@ -1,32 +1,73 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"github.com/joho/godotenv"
 	"io"
-	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
-	"strings"
+	"strconv"
+	"time"
 )
 
 func main() {
+	if len(os.Args) < 2 {
+		fmt.Println("Advent of code 2024 usage:")
+		fmt.Println("\ngo run main.go create <DAY_NUMBER>")
+		fmt.Println("Generates a new day using supplied number, copies template.go there and downloads the day input (if available)")
+		fmt.Println("\ngo run main.go run")
+		fmt.Println("Runs all available days in sequence")
+		fmt.Println("\ngo run main.go run <DAY_NUMBER>")
+		fmt.Println("Runs the supplied day")
+	}
+
+	switch os.Args[1] {
+	case "create":
+		create(os.Args[2])
+	case "run":
+		if len(os.Args) > 2 && os.Args[2] != "" {
+			run(os.Args[2])
+		} else {
+			for i := 1; i < 26; i++ {
+				d := strconv.Itoa(i)
+				if _, err := os.Stat("./day" + d); !os.IsNotExist(err) {
+					run(d)
+				}
+			}
+
+		}
+	default:
+		fmt.Println("Unknown command")
+	}
+
+}
+
+func run(day string) {
+	fmt.Println("====== Day " + day + " ======")
+	start := time.Now()
+	cmd := exec.Command("go", "run", "main.go")
+	// Swap working directory before running
+	cmd.Dir = "day" + day
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println(string(output))
+
+	fmt.Println("⏱️ Day "+day+" time:", time.Since(start))
+}
+
+func create(day string) {
 	// Read .env
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file, copy .env.example to .env and update the env vars")
+		fmt.Println("Error loading .env file, copy .env.example to .env and update the env vars")
+		os.Exit(1)
 	}
-
-	// Ask day number
-	fmt.Println("Creates or updates a day setup for advent of code")
-	fmt.Println("Enter day number: ")
-
-	reader := bufio.NewReader(os.Stdin)
-	day, _ := reader.ReadString('\n')
-	day = strings.TrimSpace(day)
 
 	year := os.Getenv("AOC_YEAR")
 	session := os.Getenv("AOC_SESSION")
@@ -77,8 +118,6 @@ func main() {
 	if err != nil {
 		fmt.Print(err)
 	}
-
-	// Todo: replace $DAY with current day number
 
 	// Write template to new .go file (if non-existing)
 	goFile := path + string(os.PathSeparator) + "main.go"

@@ -10,6 +10,11 @@ adventofcode.com
 
 ## Running
 
+To run all days run: `go run main.go run` from the root.
+To run a spefic day add that to the run command: `go run main.go run 1`.
+
+## Auto download / day creation script
+
 To create / update a day run:
-`go run main.go` from the root. It will ask you what day you want to create, create that as a directory and download the 
-AoC input
+`go run main.go create <DAY_NUMBER>` from the root. It will create a new day as a directory, download the
+AoC input and copy the template there

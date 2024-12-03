@@ -9,13 +9,9 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 )
 
 func main() {
-	fmt.Println("====== Day 1 ======")
-	start := time.Now()
-
 	file, err := os.Open("input.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -74,6 +70,4 @@ func main() {
 		part2 += leftList[i] * foundCount
 	}
 	fmt.Println("Part 2:", int(part2))
-
-	fmt.Println("⏱️ Day 1 time:", time.Since(start))
 }

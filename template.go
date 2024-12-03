@@ -5,13 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 )
 
 func main() {
-	fmt.Println("====== Day $DAY ======")
-	start := time.Now()
-
 	file, err := os.Open("input.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -26,6 +22,4 @@ func main() {
 		fmt.Println(t)
 
 	}
-
-	fmt.Println("⏱️ Day $DAY time:", time.Since(start))
 }
