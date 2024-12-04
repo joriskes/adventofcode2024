@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func remove(s []int, index int) []int {
@@ -42,6 +43,9 @@ func isSafe(numbers []int) bool {
 }
 
 func main() {
+	fmt.Println("====== Day 2 ======")
+	start := time.Now()
+
 	file, err := os.Open("input.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -78,4 +82,5 @@ func main() {
 
 	fmt.Println("Part 1:", part1)
 	fmt.Println("Part 2:", part2)
+	fmt.Println("⏱️ Day 2 time:", time.Since(start))
 }

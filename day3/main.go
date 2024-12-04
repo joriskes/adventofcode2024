@@ -5,9 +5,13 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"time"
 )
 
 func main() {
+	fmt.Println("====== Day 3 ======")
+	start := time.Now()
+
 	file, err := os.ReadFile("input.txt")
 	if err != nil {
 		fmt.Print(err)
@@ -37,4 +41,5 @@ func main() {
 
 	fmt.Println("Part 1:", part1)
 	fmt.Println("Part 2:", part2)
+	fmt.Println("⏱️ Day 3 time:", time.Since(start))
 }

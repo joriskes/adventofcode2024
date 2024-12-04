@@ -23,6 +23,7 @@ func charAt(horizStrings []string, x int, y int) string {
 func main() {
 	fmt.Println("====== Day 4 ======")
 	start := time.Now()
+
 	file, err := os.Open("input.txt")
 	if err != nil {
 		log.Fatal(err)

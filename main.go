@@ -10,7 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
-	"time"
+	"strings"
 )
 
 func main() {
@@ -46,8 +46,6 @@ func main() {
 }
 
 func run(day string) {
-	fmt.Println("====== Day " + day + " ======")
-	start := time.Now()
 	cmd := exec.Command("go", "run", "main.go")
 	// Swap working directory before running
 	cmd.Dir = "day" + day
@@ -57,7 +55,6 @@ func run(day string) {
 		os.Exit(1)
 	}
 	fmt.Print(string(output))
-	fmt.Println("⏱️ Day "+day+" time:", time.Since(start))
 }
 
 func create(day string) {
@@ -117,6 +114,8 @@ func create(day string) {
 	if err != nil {
 		fmt.Print(err)
 	}
+
+	template = []byte(strings.Replace(string(template), "$DAY", day, -1))
 
 	// Write template to new .go file (if non-existing)
 	goFile := path + string(os.PathSeparator) + "main.go"
