@@ -6,13 +6,23 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 func countInLine(line string) int {
 	return strings.Count(line, "XMAS") + strings.Count(line, "SAMX")
 }
 
+func charAt(horizStrings []string, x int, y int) string {
+	if x < 0 || y < 0 || len(horizStrings) <= y || len(horizStrings[y]) <= x {
+		return ""
+	}
+	return horizStrings[y][x : x+1]
+}
+
 func main() {
+	fmt.Println("====== Day 4 ======")
+	start := time.Now()
 	file, err := os.Open("input.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -50,7 +60,7 @@ func main() {
 
 	width := len(vertStrings)
 	height := len(horizStrings)
-	size := width + height
+	size := width + height - 1
 	horizDiagStrings := make([]string, size)
 	vertDiagStrings := make([]string, size)
 
@@ -70,5 +80,21 @@ func main() {
 	}
 
 	fmt.Println("Part 1:", part1)
+
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			c := charAt(horizStrings, x, y)
+			if c == "A" {
+				c1 := charAt(horizStrings, x-1, y-1) + charAt(horizStrings, x+1, y+1)
+				c2 := charAt(horizStrings, x+1, y-1) + charAt(horizStrings, x-1, y+1)
+				if (c1 == "MS" || c1 == "SM") && (c2 == "MS" || c2 == "SM") {
+					part2++
+				}
+
+			}
+		}
+
+	}
 	fmt.Println("Part 2:", part2)
+	fmt.Println("⏱️ Day 4 time:", time.Since(start))
 }
