@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
 )
 
 type Rule struct {
-	num1 int
-	num2 int
+	needsToBeBefore []int
 }
 
 func strToInt(str string) int {
@@ -23,28 +23,50 @@ func strToInt(str string) int {
 	return n
 }
 
-func isInOrder(update []int, rules []Rule) bool {
-	for rule := range rules {
-		i1 := -1
-		i2 := -1
-
-		for i, v := range update {
-			if v == rules[rule].num1 {
-				i1 = i
-			}
-			if v == rules[rule].num2 {
-				i2 = i
-			}
-		}
-
-		if i1 > -1 && i2 > -1 {
-			// Both found, check order
-			if i1 > i2 {
-				return false
+func isInOrder(update []int, rules map[int]Rule) bool {
+	for i, u := range update {
+		m, ok := rules[u]
+		if ok {
+			if len(m.needsToBeBefore) > 0 {
+				for _, u := range update[0:i] {
+					if slices.Contains(m.needsToBeBefore, u) {
+						return false
+					}
+				}
 			}
 		}
 	}
 	return true
+}
+
+func fixOrder(update []int, rules map[int]Rule) []int {
+	newOrder := update
+	move := 0
+	for move > -1 {
+		move = -1
+		i := 0
+	findMove:
+		for move == -1 && i < len(newOrder) {
+			r, ok := rules[newOrder[i]]
+			if ok && len(r.needsToBeBefore) > 0 {
+				for _, c := range r.needsToBeBefore {
+					if slices.Contains(newOrder[0:i], c) {
+						move = i
+						break findMove
+					}
+				}
+			}
+			i++
+		}
+		if move > -1 {
+			// Found failure, move that number left one and retry
+			c := newOrder[move-1]
+			newOrder[move-1] = newOrder[move]
+			newOrder[move] = c
+		}
+	}
+
+	return update
 }
 
 func main() {
@@ -61,7 +83,7 @@ func main() {
 	part1 := 0
 	part2 := 0
 
-	rules := [](Rule){}
+	rules := map[int](Rule){}
 	updates := [][]int{}
 	emptyLineFound := false
 	for scanner.Scan() {
@@ -71,10 +93,18 @@ func main() {
 		} else {
 			if !emptyLineFound {
 				s := strings.Split(t, "|")
-				rules = append(rules, Rule{
-					num1: strToInt(s[0]),
-					num2: strToInt(s[1]),
-				})
+				n1 := strToInt(s[0])
+				n2 := strToInt(s[1])
+
+				m, ok := rules[n1]
+				if ok {
+					m.needsToBeBefore = append(rules[n1].needsToBeBefore, n2)
+					rules[n1] = m
+				} else {
+					rules[n1] = Rule{
+						needsToBeBefore: []int{n2},
+					}
+				}
 			} else {
 				s := strings.Split(t, ",")
 				ar := make([]int, len(s))
@@ -87,10 +117,11 @@ func main() {
 	}
 
 	for u := 0; u < len(updates); u++ {
-		fmt.Println(updates[u])
 		if isInOrder(updates[u], rules) {
-			fmt.Println("In order")
 			part1 += updates[u][len(updates[u])/2]
+		} else {
+			updates[u] = fixOrder(updates[u], rules)
+			part2 += updates[u][len(updates[u])/2]
 		}
 	}
 	fmt.Println("Part 1:", part1)
