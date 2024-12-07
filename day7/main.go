@@ -30,6 +30,14 @@ func testOperators(numbers []uint64, runningTotal uint64, wantedTotal uint64, op
 			if testOperators(numbers[1:], runningTotal*n1, wantedTotal, operatorList) {
 				res = true
 			}
+		case "||":
+			concat, err := strconv.ParseUint(fmt.Sprintf("%d%d", runningTotal, n1), 10, 64)
+			if err != nil {
+				log.Fatal(err)
+			}
+			if testOperators(numbers[1:], concat, wantedTotal, operatorList) {
+				res = true
+			}
 		default:
 			fmt.Println("Unknown operator")
 			return false
@@ -60,10 +68,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		operators := []string{
-			"*",
-			"+",
-		}
+
 		ar2 := strings.Split(ar[1], " ")
 		numbers := []uint64{}
 		for _, v := range ar2 {
@@ -74,8 +79,17 @@ func main() {
 			numbers = append(numbers, n)
 		}
 
+		operators := []string{
+			"*",
+			"+",
+		}
 		if testOperators(numbers[1:], numbers[0], total, operators) {
 			part1 += total
+		}
+
+		operators = append(operators, "||")
+		if testOperators(numbers[1:], numbers[0], total, operators) {
+			part2 += total
 		}
 	}
 
