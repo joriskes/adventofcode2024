@@ -102,14 +102,24 @@ func main() {
 	part1 = checkSum(disk1)
 
 	// Part 2
+	startSearchFrom := 0
 	for i := len(files) - 1; i > 0; i-- {
 		file := files[i]
 		move := -1
-		for d := 0; d < file.start; d++ {
-			if disk2[d].free && disk2[d].size >= file.size {
-				move = d
-				break
+		foundFree := false
+		for d := startSearchFrom; d < file.start; d++ {
+			if disk2[d].free {
+				if !foundFree {
+					// Next time skip all non-free starting space
+					startSearchFrom = d
+					foundFree = true
+				}
+				if disk2[d].free && disk2[d].size >= file.size {
+					move = d
+					break
+				}
 			}
+			d += disk2[d].size - 1 // Jump over complete space for speed
 		}
 		if move > -1 && move < file.start {
 			for d := 0; d < file.size; d++ {
@@ -124,6 +134,6 @@ func main() {
 	fmt.Println("Done")
 
 	fmt.Println("Part 1:", part1)
-	fmt.Println("Part 2:", part2)
+	fmt.Println("Part 2:", part2) //6418529470362
 	fmt.Println("⏱️ Day 9 time:", time.Since(start))
 }
