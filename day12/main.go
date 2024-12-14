@@ -19,11 +19,13 @@ type Tile struct {
 }
 
 type Region struct {
-	tiles []Tile
-	crop  string
-	area  int
-	fence int
-	price int
+	tiles     []Tile
+	crop      string
+	area      int
+	fence     int
+	sides     int
+	price     int
+	bulkPrice int
 }
 
 func getTile(x, y int, layout map[int]map[int]Tile) (Tile, error) {
@@ -31,6 +33,14 @@ func getTile(x, y int, layout map[int]map[int]Tile) (Tile, error) {
 		return Tile{}, errors.New("Tile out of bounds")
 	}
 	return layout[y][x], nil
+}
+
+func tileHasCrop(x, y int, crop string, layout map[int]map[int]Tile) bool {
+	f, err := getTile(x, y, layout)
+	if err != nil {
+		return false
+	}
+	return f.crop == crop
 }
 
 func calcArea(region Region) int {
@@ -41,20 +51,16 @@ func calcFence(region Region, layout map[int]map[int]Tile) int {
 	res := 0
 	for _, t := range region.tiles {
 		c := layout[t.y][t.x].crop
-		f, err := getTile(t.x, t.y-1, layout)
-		if err != nil || f.crop != c {
+		if !tileHasCrop(t.x, t.y-1, c, layout) {
 			res++
 		}
-		f, err = getTile(t.x, t.y+1, layout)
-		if err != nil || f.crop != c {
+		if !tileHasCrop(t.x, t.y+1, c, layout) {
 			res++
 		}
-		f, err = getTile(t.x-1, t.y, layout)
-		if err != nil || f.crop != c {
+		if !tileHasCrop(t.x-1, t.y, c, layout) {
 			res++
 		}
-		f, err = getTile(t.x+1, t.y, layout)
-		if err != nil || f.crop != c {
+		if !tileHasCrop(t.x+1, t.y, c, layout) {
 			res++
 		}
 	}
@@ -63,6 +69,43 @@ func calcFence(region Region, layout map[int]map[int]Tile) int {
 
 func calcPrice(region Region) int {
 	return region.area * region.fence
+}
+
+func calcSides(region Region, layout map[int]map[int]Tile) int {
+	// Calcing sides = calcing corners
+	res := 0
+	for _, t := range region.tiles {
+		if !tileHasCrop(t.x, t.y-1, t.crop, layout) && !tileHasCrop(t.x-1, t.y, t.crop, layout) {
+			res++
+		}
+		if !tileHasCrop(t.x, t.y+1, t.crop, layout) && !tileHasCrop(t.x-1, t.y, t.crop, layout) {
+			res++
+		}
+		if !tileHasCrop(t.x, t.y-1, t.crop, layout) && !tileHasCrop(t.x+1, t.y, t.crop, layout) {
+			res++
+		}
+		if !tileHasCrop(t.x, t.y+1, t.crop, layout) && !tileHasCrop(t.x+1, t.y, t.crop, layout) {
+			res++
+		}
+
+		if tileHasCrop(t.x+1, t.y, t.crop, layout) && tileHasCrop(t.x, t.y+1, t.crop, layout) && !tileHasCrop(t.x+1, t.y+1, t.crop, layout) {
+			res++
+		}
+		if tileHasCrop(t.x-1, t.y, t.crop, layout) && tileHasCrop(t.x, t.y-1, t.crop, layout) && !tileHasCrop(t.x-1, t.y-1, t.crop, layout) {
+			res++
+		}
+		if tileHasCrop(t.x+1, t.y, t.crop, layout) && tileHasCrop(t.x, t.y-1, t.crop, layout) && !tileHasCrop(t.x+1, t.y-1, t.crop, layout) {
+			res++
+		}
+		if tileHasCrop(t.x-1, t.y, t.crop, layout) && tileHasCrop(t.x, t.y+1, t.crop, layout) && !tileHasCrop(t.x-1, t.y+1, t.crop, layout) {
+			res++
+		}
+	}
+	return res
+}
+
+func calcBulkPrice(region Region) int {
+	return region.sides * region.area
 }
 
 func collectRegionTiles(t Tile, layout map[int]map[int]Tile, visited *[]string) []Tile {
@@ -144,7 +187,10 @@ func main() {
 		regions[r].area = calcArea(regions[r])
 		regions[r].fence = calcFence(regions[r], layout)
 		regions[r].price = calcPrice(regions[r])
+		regions[r].sides = calcSides(regions[r], layout)
+		regions[r].bulkPrice = calcBulkPrice(regions[r])
 		part1 += regions[r].price
+		part2 += regions[r].bulkPrice
 	}
 
 	fmt.Println("Part 1:", part1)
