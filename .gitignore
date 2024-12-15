@@ -26,3 +26,6 @@ go.work.sum
 
 # Advent of code input files (they are personal)
 **/input.txt
+
+# Ouput of special days
+**/output/
